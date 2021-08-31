@@ -1,0 +1,140 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.10'
+    id "org.beryx.jlink" version "2.24.1"
+    id "org.javamodularity.moduleplugin" version "1.8.8"
+
+}
+
+group 'org.orkhon'
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    junitVersion = '5.7.2'
+    moduleName = 'org.orkhon'
+    mainClass = 'org.orkhon.App'
+    launcherName = 'orkhon'
+    imageDirPath = "$buildDir/${launcherName}-image"
+    imageZipPath = "$buildDir/image-zip/${launcherName}-image.zip"
+}
+
+sourceCompatibility = '16'
+targetCompatibility = '16'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+application {
+    mainModule = 'org.orkhon'
+    mainClass = 'org.orkhon.App'
+}
+
+mainClassName = "$moduleName/$mainClass"
+jar {
+    manifest {
+        attributes 'Implementation-Title': "orkhon",
+                'Main-Class': mainClass
+    }
+}
+
+jlink {
+    imageDir = file(imageDirPath)
+    imageZip = file(imageZipPath)
+    mergedModule {
+//        requires 'org.slf4j'
+//        requires 'java.compiler'
+//        requires 'java.naming'
+//        requires 'java.sql'
+//        requires 'java.xml'
+//        requires 'java.desktop'
+//        requires 'java.management'
+//        requires 'jdk.management.agent'
+//        requires 'jdk.unsupported'
+//        uses 'javax.annotation.processing.Processor'
+//        provides 'javax.tools.JavaCompiler' with 'org.eclipse.jdt.internal.compiler.tool.EclipseCompiler'
+//        provides 'com.fasterxml.jackson.core.JsonFactory' with 'com.fasterxml.jackson.core.JsonFactory'
+//        provides 'com.fasterxml.jackson.core.ObjectCodec' with 'com.fasterxml.jackson.databind.ObjectMapper'
+    }
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher {
+        name = project.launcherName
+        jvmArgs = [
+                '-Dio.netty.tryReflectionSetAccessible=false',
+                '-Dlogback.configurationFile=./logback.xml',
+                '-Djava.util.logging.config.file=logging.properties',
+                '-Dfile.encoding=UTF-8',
+                '-Dhttps.protocols=TLSv1.2',
+//                '-Dcom.sun.management.jmxremote=true',
+//                '-Dcom.sun.management.jmxremote.authenticate=false',
+//                '-Dcom.sun.management.jmxremote.port=1099',
+//                '-Dcom.sun.management.jmxremote.ssl=false'
+        ]
+        //windowsScriptTemplate = file('windowsScriptTemplate.txt')
+    }
+    jpackage {
+//        def currentOs = org.gradle.internal.os.OperatingSystem.current()
+//        def imgType = currentOs.windows ? 'ico' : currentOs.macOsX ? 'icns' : 'png'
+//        icon = "src/main/resources/images/dna.ico"
+        imageOptions = ['--icon', 'src/main/resources/images/dna.ico']
+            skipInstaller = true
+            installerType = "exe"
+            installerOptions += [
+                    '--win-per-user-install', '--win-dir-chooser',
+                    '--win-menu', '--win-shortcut',
+                    '--verbose'
+            ]
+    }
+    if(System.getenv('CI')) {
+        targetPlatform('linux', System.getenv('JAVA_HOME'))
+        targetPlatform('win', System.getenv('JDK_WIN_HOME'))
+    }
+}
+
+tasks.jlink {
+    doLast {
+        def subdirs = System.getenv('CI') ? ["/${launcherName}-linux", "/${launcherName}-win"] : ['']
+        subdirs.each { subdir ->
+            copy {
+                from('src/workflow')
+                into("$imageDirPath$subdir/bin/src/workflow")
+            }
+            copy {
+                from('src/main/resources')
+                into("$imageDirPath/bin")
+            }
+        }
+    }
+}
+
+javafx {
+    version = '16'
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.web']
+}
+
+dependencies {
+    implementation group: 'org.jdbi', name: 'jdbi3-core', version: '3.21.0'
+    implementation group: 'org.jdbi', name: 'jdbi3-sqlobject', version: '3.21.0'
+    implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.7.4'
+
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.14.2'
+    implementation('org.controlsfx:controlsfx:11.1.0')
+    implementation('net.synedra:validatorfx:0.1.13') {
+        exclude(group: 'org.openjfx')
+    }
+    implementation('eu.hansolo:tilesfx:16.0.3') {
+        exclude(group: 'org.openjfx')
+    }
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+}
+
+test {
+    useJUnitPlatform()
+}

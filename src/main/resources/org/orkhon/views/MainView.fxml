@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.orkhon.controllers.MainController">
+   <columnConstraints>
+      <ColumnConstraints hgrow="ALWAYS" minWidth="250.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+   </rowConstraints>
+   <AnchorPane>
+      <children>
+         <VBox alignment="CENTER_LEFT" prefHeight="291.0" prefWidth="287.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+               <Insets left="20.0" right="20.0" />
+            </padding>
+            <children>
+               <TextField fx:id="txtBookId" />
+               <Button fx:id="btnLogin" contentDisplay="CENTER" mnemonicParsing="false" text="Button" textAlignment="CENTER" />
+               <TextArea fx:id="textArea" prefHeight="200.0" prefWidth="200.0" />
+            </children>
+         </VBox>
+      </children>
+   </AnchorPane>
+</GridPane>

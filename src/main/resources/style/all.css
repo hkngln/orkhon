@@ -1,0 +1,22 @@
+
+.button {
+    -fx-font-size: 1.25em;
+}
+
+#successButton {
+
+}
+
+.label {
+    -fx-font-size: 1.25em;
+    -fx-font-weight: bold;
+}
+
+.text-field {
+    -fx-font-size: 1.25em;
+}
+
+
+.trBackground {
+    -fx-background-color: turquoise;
+}
